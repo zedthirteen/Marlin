@@ -188,7 +188,7 @@
 //#define E0_DRIVER_TYPE A4988
 ////#define E1_DRIVER_TYPE A4988
 #define E0_DRIVER_TYPE TMC2130
-#define E1_DRIVER_TYPE TMC2130
+//#define E1_DRIVER_TYPE TMC2130
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
 //#define E4_DRIVER_TYPE A4988
@@ -242,8 +242,9 @@
 
 // This defines the number of extruders
 // :[0, 1, 2, 3, 4, 5, 6, 7, 8]
-//// 20240328 DJF increase to 2 extruders
-// Setting 2 causees an error: 
+//// 20240328 DJF increase to 2 extruders - 
+// 20240621 DJF switched back to single extruder
+// Settings an error: 
 // buildroot/share/PlatformIO/scripts/../../../../Marlin/src/inc/../pins/pins_postprocess.h:877:8: error: #error "No E stepper plug left for Z2!"
 #define EXTRUDERS 1
 //#define EXTRUDERS 2
