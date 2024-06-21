@@ -21,7 +21,10 @@
  */
 #pragma once
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
+/**
+ * DGUS implementation written by coldtobi in 2019.
+ * Updated for STM32G0B1RE by Protomosh in 2022.
+ */
 
 #include "config/DGUS_Screen.h"
 #include "config/DGUS_Control.h"
@@ -30,11 +33,13 @@
 #include "../../../inc/MarlinConfigPre.h"
 #include "../../../MarlinCore.h"
 
+//#define DEBUG_DGUSLCD // Uncomment for debug messages
 #define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)
 #include "../../../core/debug_out.h"
 
-#define Swap16(val) ((uint16_t)(((uint16_t)(val) >> 8) |\
-                                ((uint16_t)(val) << 8)))
+// New endianness swap for 32bit mcu (tested with STM32G0B1RE)
+#define BE16_P(V) ( ((uint8_t*)(V))[0] << 8U | ((uint8_t*)(V))[1] )
+#define BE32_P(V) ( ((uint8_t*)(V))[0] << 24U | ((uint8_t*)(V))[1] << 16U | ((uint8_t*)(V))[2] << 8U | ((uint8_t*)(V))[3] )
 
 // Low-Level access to the display.
 class DGUSDisplay {
@@ -42,13 +47,13 @@ public:
 
   enum DGUS_ControlType : uint8_t {
     VARIABLE_DATA_INPUT = 0x00,
-    POPUP_WINDOW = 0x01,
-    INCREMENTAL_ADJUST = 0x02,
-    SLIDER_ADJUST = 0x03,
-    RTC_SETTINGS = 0x04,
-    RETURN_KEY_CODE = 0x05,
-    TEXT_INPUT = 0x06,
-    FIRMWARE_SETTINGS = 0x07
+    POPUP_WINDOW        = 0x01,
+    INCREMENTAL_ADJUST  = 0x02,
+    SLIDER_ADJUST       = 0x03,
+    RTC_SETTINGS        = 0x04,
+    RETURN_KEY_CODE     = 0x05,
+    TEXT_INPUT          = 0x06,
+    FIRMWARE_SETTINGS   = 0x07
   };
 
   DGUSDisplay() = default;
@@ -116,7 +121,7 @@ public:
     } src, dst;
 
     src.val = value;
-    LOOP_L_N(i, sizeof(T)) dst.byte[i] = src.byte[sizeof(T) - i - 1];
+    for (uint8_t i = 0; i < sizeof(T); ++i) dst.byte[i] = src.byte[sizeof(T) - i - 1];
     return dst.val;
   }
 
@@ -149,7 +154,7 @@ private:
   };
 
   enum dgus_system_addr : uint16_t {
-    DGUS_VERSION = 0x000f // OS/GUI version
+    DGUS_VERSION = 0x000F // OS/GUI version
   };
 
   static void WriteHeader(uint16_t addr, uint8_t command, uint8_t len);

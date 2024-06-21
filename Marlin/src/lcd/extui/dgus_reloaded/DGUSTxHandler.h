@@ -24,9 +24,11 @@
 #include "DGUSDisplay.h"
 #include "definition/DGUS_VP.h"
 
+#define Swap16(val) ((uint16_t)(((uint16_t)(val) >> 8) | ((uint16_t)(val) << 8)))
+
 namespace DGUSTxHandler {
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     void SetFileControlState(int, bool);
     void FileType(DGUS_VP &);
     void FileName(DGUS_VP &);

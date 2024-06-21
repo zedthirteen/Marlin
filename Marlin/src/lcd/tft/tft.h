@@ -53,21 +53,21 @@
   #error "Unsupported display resolution!"
 #endif
 
-#ifndef TFT_BUFFER_SIZE
+#ifndef TFT_BUFFER_WORDS
   #ifdef STM32F103xB
-    #define TFT_BUFFER_SIZE       1024
+    #define TFT_BUFFER_WORDS      1024
   #elif defined(STM32F103xE)
-    #define TFT_BUFFER_SIZE       19200 // 320 * 60
+    #define TFT_BUFFER_WORDS      19200 // 320 * 60
   #elif defined(STM32F1)
-    #define TFT_BUFFER_SIZE       8192
+    #define TFT_BUFFER_WORDS      8192
   #else
-    #define TFT_BUFFER_SIZE       19200 // 320 * 60
+    #define TFT_BUFFER_WORDS      19200 // 320 * 60
   #endif
 #endif
 
-#if TFT_BUFFER_SIZE > 65535
+#if TFT_BUFFER_WORDS > DMA_MAX_WORDS
   // DMA Count parameter is uint16_t
-  #error "TFT_BUFFER_SIZE can not exceed 65535"
+  #error "TFT_BUFFER_WORDS can not exceed DMA_MAX_WORDS"
 #endif
 
 class TFT {
@@ -78,7 +78,7 @@ class TFT {
   public:
     static TFT_Queue queue;
 
-    static uint16_t buffer[TFT_BUFFER_SIZE];
+    static uint16_t buffer[TFT_BUFFER_WORDS];
 
     static void init();
     static void set_font(const uint8_t *Font) { string.set_font(Font); }
@@ -86,8 +86,8 @@ class TFT {
 
     static bool is_busy() { return io.isBusy(); }
     static void abort() { io.Abort(); }
-    static void write_multiple(uint16_t Data, uint16_t Count) { io.WriteMultiple(Data, Count); }
-    static void write_sequence(uint16_t *Data, uint16_t Count) { io.WriteSequence(Data, Count); }
+    static void write_multiple(uint16_t Data, uint16_t Count) { io.WriteMultipleDMA(Data, Count); }
+    static void write_sequence(uint16_t *Data, uint16_t Count) { io.WriteSequenceDMA(Data, Count); }
     static void set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) { io.set_window(Xmin, Ymin, Xmax, Ymax); }
 
     static void fill(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.fill(x, y, width, height, color); }

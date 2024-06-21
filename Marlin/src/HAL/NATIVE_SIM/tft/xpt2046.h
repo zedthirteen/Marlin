@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -51,7 +54,7 @@ enum XPTCoordinate : uint8_t {
   XPT2046_Z2 = 0x40 | XPT2046_CONTROL | XPT2046_DFR_MODE,
 };
 
-#if !defined(XPT2046_Z1_THRESHOLD)
+#ifndef XPT2046_Z1_THRESHOLD
   #define XPT2046_Z1_THRESHOLD 10
 #endif
 

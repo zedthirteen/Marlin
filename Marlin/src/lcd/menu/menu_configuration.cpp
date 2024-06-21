@@ -60,7 +60,7 @@
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
 void menu_advanced_settings();
-#if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+#if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
   void menu_delta_calibrate();
 #endif
 
@@ -79,7 +79,7 @@ void menu_advanced_settings();
     LIMIT(bar_percent, 0, 100);
     ui.encoderPosition = 0;
     MenuItem_static::draw(0, GET_TEXT_F(MSG_PROGRESS_BAR_TEST), SS_DEFAULT|SS_INVERT);
-    lcd_put_int((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2, bar_percent); lcd_put_lchar('%');
+    lcd_put_int((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2, bar_percent); lcd_put_u8str(F("%"));
     lcd_moveto(0, LCD_HEIGHT - 1); ui.draw_progress_bar(bar_percent);
   }
 
@@ -124,6 +124,7 @@ void menu_advanced_settings();
       EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_UNRETRACT_SPEED, &toolchange_settings.unretract_speed, 10, 5400);
       EDIT_ITEM(float3, MSG_FILAMENT_PURGE_LENGTH, &toolchange_settings.extra_prime, 0, max_extrude);
       EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_PRIME_SPEED, &toolchange_settings.prime_speed, 10, 5400);
+      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_WIPE_RETRACT, &toolchange_settings.wipe_retract, 0, 100);
       EDIT_ITEM_FAST(uint8, MSG_SINGLENOZZLE_FAN_SPEED, &toolchange_settings.fan_speed, 0, 255);
       EDIT_ITEM_FAST(uint8, MSG_SINGLENOZZLE_FAN_TIME, &toolchange_settings.fan_time, 1, 30);
     #endif
@@ -180,10 +181,10 @@ void menu_advanced_settings();
     #if ENABLED(DUAL_X_CARRIAGE)
       EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
     #else
-      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, -99.0, 99.0, _recalc_offsets);
+      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, -99.0f, 99.0f, _recalc_offsets);
     #endif
-    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].y, -99.0, 99.0, _recalc_offsets);
-    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].z, Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].y, -99.0f, 99.0f, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].z, -10.0f, 10.0f, _recalc_offsets);
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
     #endif
@@ -359,7 +360,7 @@ void menu_advanced_settings();
 
   void custom_menus_configuration() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    BACK_ITEM(MSG_MAIN_MENU);
 
     #define HAS_CUSTOM_ITEM_CONF(N) (defined(CONFIG_MENU_ITEM_##N##_DESC) && defined(CONFIG_MENU_ITEM_##N##_GCODE))
 
@@ -471,7 +472,7 @@ void menu_configuration() {
   const bool busy = printer_busy();
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   //
   // Debug Menu when certain options are enabled
@@ -506,7 +507,7 @@ void menu_configuration() {
   #endif
 
   if (!busy) {
-    #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+    #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
       SUBMENU(MSG_DELTA_CALIBRATE, menu_delta_calibrate);
     #endif
 
@@ -547,10 +548,10 @@ void menu_configuration() {
   //
   // Set display backlight / sleep timeout
   //
-  #if LCD_BACKLIGHT_TIMEOUT && LCD_BKL_TIMEOUT_MIN < LCD_BKL_TIMEOUT_MAX
-    EDIT_ITEM(uint16_4, MSG_LCD_TIMEOUT_SEC, &ui.lcd_backlight_timeout, LCD_BKL_TIMEOUT_MIN, LCD_BKL_TIMEOUT_MAX, ui.refresh_backlight_timeout);
+  #if LCD_BACKLIGHT_TIMEOUT_MINS
+    EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.backlight_timeout_minutes, ui.backlight_timeout_min, ui.backlight_timeout_max, ui.refresh_backlight_timeout);
   #elif HAS_DISPLAY_SLEEP
-    EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.sleep_timeout_minutes, SLEEP_TIMEOUT_MIN, SLEEP_TIMEOUT_MAX, ui.refresh_screen_timeout);
+    EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.sleep_timeout_minutes, ui.sleep_timeout_min, ui.sleep_timeout_max, ui.refresh_screen_timeout);
   #endif
 
   #if ENABLED(FWRETRACT)
@@ -571,7 +572,7 @@ void menu_configuration() {
 
   // Preheat configurations
   #if HAS_PREHEAT && DISABLED(SLIM_LCD_MENUS)
-    LOOP_L_N(m, PREHEAT_COUNT)
+    for (uint8_t m = 0; m < PREHEAT_COUNT; ++m)
       SUBMENU_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
   #endif
 

@@ -120,10 +120,16 @@
   #define HAS_TMC220x 1
 #endif
 
+#if HAS_DRIVER(TMC26X)
+  #define HAS_TMC26X 1
+#endif
+
 #define AXIS_IS_TMC(A)   (    AXIS_DRIVER_TYPE(A,TMC2130) || AXIS_DRIVER_TYPE(A,TMC2160) \
                            || AXIS_DRIVER_TYPE(A,TMC2208) || AXIS_DRIVER_TYPE(A,TMC2209) \
                            || AXIS_DRIVER_TYPE(A,TMC2660) \
                            || AXIS_DRIVER_TYPE(A,TMC5130) || AXIS_DRIVER_TYPE(A,TMC5160) )
+
+#define AXIS_IS_TMC_CONFIG(A)   ( AXIS_IS_TMC(A) || AXIS_DRIVER_TYPE(A,TMC26X) )
 
 // Test for a driver that uses SPI - this allows checking whether a _CS_ pin
 // is considered sensitive
@@ -181,11 +187,4 @@
 #endif
 #if ANY_AXIS_HAS(SPI)
   #define HAS_TMC_SPI 1
-#endif
-
-//
-// TMC26XX Stepper Drivers
-//
-#if HAS_DRIVER(TMC26X)
-  #define HAS_TMC26X 1
 #endif
