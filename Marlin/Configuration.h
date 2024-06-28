@@ -21,6 +21,13 @@
  */
 #pragma once
 
+/*
+DJF Note: Use 
+I think "git pull" does a git fetch and git merge? to pull latest files from https://github.com/MarlinFirmware/Marlin into my local repo
+
+"git remote set-url --add --push origin https://github.com/zedthirteen/Marlin" to save finished code to my repo
+*/
+
 /**
  * Configuration.h
  *
