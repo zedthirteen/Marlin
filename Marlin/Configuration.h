@@ -25,7 +25,12 @@
 DJF Note: Use 
 I think "git pull" does a git fetch and git merge? to pull latest files from https://github.com/MarlinFirmware/Marlin into my local repo
 
+Should just need "git pull" but my history shows "git pull FETCH_HEAD"?
+
+this configured my remote repo for push
 "git remote set-url --add --push origin https://github.com/zedthirteen/Marlin" to save finished code to my repo
+
+just need to use: "git push origin" to send to my github repo. I did try "git push origin DJF_2.1.2.4" but I don't think that it worked
 */
 
 /**
