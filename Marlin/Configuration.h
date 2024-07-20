@@ -796,6 +796,9 @@ just need to use: "git push origin" to send to my github repo. I did try "git pu
  *
  * With this option disabled, bang-bang will be used. BED_LIMIT_SWITCHING enables hysteresis.
  */
+// 20240717 enable bed PID tuning
+// 20240718 DJF - disable it again
+//#define PIDTEMPBED
 //#define PIDTEMPBED
 
 #if ENABLED(PIDTEMPBED)
@@ -886,6 +889,7 @@ just need to use: "git push origin" to send to my github repo. I did try "git pu
  */
 #define PREVENT_LENGTHY_EXTRUDE
 #define EXTRUDE_MAXLENGTH 200
+
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -1236,15 +1240,19 @@ just need to use: "git push origin" to send to my github repo. I did try "git pu
 // DJF To Do - ARM'ED is 256 microstep
 // 2019-10-12 DJF My Z is M* 8mm pitch 1.8 degrees (200 steps/rev) with 1/16 microstepping or 400 steps/mm
 // 2019-10-27 DJF MKS SBASE v1.3 uses 1/32 microstepping
-// 2019-11-17 DJF - X aand Y axis are 1.8 degrees, 2m belt pits and 20 tooth pulley, 32 microsteps = 160 steps/mm
+// 2019-11-17 DJF - X aand Y axis are 1.8 degrees, 2mm belt pitch and 20 tooth (20T) pulley, 32 microsteps = 160 steps/mm
+
+// DJF Note - might be switching to 16 tooth pulley (16T)  where 32 microsteps = 200 steps/mm
 // 2020-04-04 DJF - TMC21330 stepper drivers are 256 steps/mm
 // 2020-04-04 DJF - Set back to 16 until drivers are working properly
 // 2020-05-26 DJF - Extruder is only delivering 90% at 96 steps so increase to 107
+// 2024-07-20 DJF - BEAR extruder is only delivering 75% at 107 so increase to 143
 // See: https://blog.prusaprinters.org/calculator/
 //
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 96 } // 16 steps/mm
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 107 } // 16 steps/mm
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 96 } // 16 steps/mm0
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 107 } // 16 steps/mm
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 143 } // 16 steps/mm
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 800, 192 } // 32 teps/mm
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   { 1280, 1280, 6400, 1536 } // 256 step/mm
 
@@ -1576,7 +1584,9 @@ just need to use: "git push origin" to send to my github repo. I did try "git pu
 // 2020-05-25 DJF - my Z probe at -1.0 when hot (-0.8 was close for first layer)
 //#define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
 //#define NOZZLE_TO_PROBE_OFFSET { 17, 51, 0 }
-#define NOZZLE_TO_PROBE_OFFSET { 17, 51, -1.0 }
+// 20240716 DJF new offsets for BEAR extruder
+//#define NOZZLE_TO_PROBE_OFFSET { 17, 51, -1.0 }
+#define NOZZLE_TO_PROBE_OFFSET { 23, 5, -0.4 }
 
 
 // Most probes should stay away from the edges of the bed, but
@@ -1741,7 +1751,9 @@ just need to use: "git push origin" to send to my github repo. I did try "git pu
 // 2020-04-09 DJF - Invert X direction
 // 2020-04-10 DJF - Invert Y direction
 // 2020-04-11 X is moving wrong way to home now so change back to true
-#define INVERT_X_DIR true
+//20240716 DJF - X needs to switch back now that the new BEAR estruder is on
+//#define INVERT_X_DIR true
+#define INVERT_X_DIR false
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR false
 //#define INVERT_I_DIR false
@@ -1755,9 +1767,11 @@ just need to use: "git push origin" to send to my github repo. I did try "git pu
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
 // 2019-10-12 DJF - invert for MK8 direct drive
+//20240718 DJF BEAR head is reversed
 //#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true
 //#define INVERT_E1_DIR false
-#define INVERT_E0_DIR false
+
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -1805,14 +1819,18 @@ just need to use: "git push origin" to send to my github repo. I did try "git pu
 //#define Y_BED_SIZE 212.5
 //#define X_BED_SIZE 200
 //#define Y_BED_SIZE 200
-#define X_BED_SIZE 184
-#define Y_BED_SIZE 219
+//20240716 DJF BEAR head gives more 25mm more X travel
+//#define X_BED_SIZE 184
+#define X_BED_SIZE 209
+#define Y_BED_SIZE 214
 
 // Travel limits (linear=mm, rotational=°) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
-// 20240326 define y min pos
+//// 20240326 define y min pos
+//#define Y_MIN_POS 0
+// 20240716 DJF - I don't use clips any more so can print right to the front of the bed0
+//#define Y_MIN_POS -32 // -40
 #define Y_MIN_POS 0
-#define Y_MIN_POS -32 // -40
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
@@ -1886,12 +1904,18 @@ just need to use: "git push origin" to send to my github repo. I did try "git pu
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
+// 20240716 DJF Enable filament runout sensor
 //#define FILAMENT_RUNOUT_SENSOR
+#define FILAMENT_RUNOUT_SENSOR
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
 
-  #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
+// 20240720 DJF - The prusa filament sensor goes high when filament is out - not sure about pullup/down?
+//  #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
+//  #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
+//  //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
+  #define FIL_RUNOUT_STATE     HIGH        // Pin state indicating that filament is NOT present.
   #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
   //#define WATCH_ALL_RUNOUT_SENSORS      // Execute runout script on any triggering sensor, not only for the active extruder.
